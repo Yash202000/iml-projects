@@ -1,0 +1,22 @@
+users:
+  - {
+    username: 'yash' ,
+    email: 'yashpanchwatkar@gmail.com' 
+  
+  }
+  - {
+    username: 'pratik',
+    email: 'pratik@gmail.com'
+  }
+  - {
+    username: 'tanmay',
+    email: 'tanmay@gmail.com'
+  }
+
+app_ip: 'app_ip'
+
+app_server_pem_file: "Test-file.pem"
+
+bastion_ip: 'bastion_ip'
+
+bastion_server_pem_file: "Test-file.pem"

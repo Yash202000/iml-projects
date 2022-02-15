@@ -1,0 +1,10 @@
+ssh ec2-user@{{ ip_addr }} -i ./workstation/{{ app_server_pem_file }}  -o StrictHostKeyChecking=No  "sudo useradd {{ username }}"
+ssh ec2-user@{{ ip_addr }} -i ./workstation/{{ app_server_pem_file }}  -o StrictHostKeyChecking=No  "sudo mkdir -p /home/{{ username }}/.ssh"
+ssh ec2-user@{{ ip_addr }} -i ./workstation/{{ app_server_pem_file }}  -o StrictHostKeyChecking=No  "sudo touch /home/{{ username }}/.ssh/authorized_keys"
+ssh ec2-user@{{ ip_addr }} -i ./workstation/{{ app_server_pem_file }}  -o StrictHostKeyChecking=No  "sudo cat ./workstation/files/id_{{ username }}_rsa.pub >>  /home/{{ username }}/.ssh/authorized_keys"
+ssh ec2-user@{{ ip_addr }} -i ./workstation/{{ app_server_pem_file }}  -o StrictHostKeyChecking=No  "sudo chmod 700 /home/{{ username }}/.ssh"
+ssh ec2-user@{{ ip_addr }} -i ./workstation/{{ app_server_pem_file }}  -o StrictHostKeyChecking=No  "sudo chmod 600 /home/{{ username }}/.ssh/authorized_keys"
+
+
+
+
