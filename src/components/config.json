@@ -1,0 +1,14 @@
+{
+    "URL": "http://localhost:5000/",
+    "signupURL": "http://localhost:5000/signup/add",
+    "signinURL": "http://localhost:5000/signin",
+    "listNotUpdatedURL":  "http://localhost:5000/list/notupdated",
+    "missingProjectsURL": "http://localhost:5000/projects/list/missing_projects",
+    "presentProjectsURL": "http://localhost:5000/projects/list/present_projects",
+    "notSynchronizedURL": "http://localhost:5000/projects/list/not_synchronized",
+    "synchronizedURL": "http://localhost:5000/projects/list/synchronized",
+    "deleteProjectURL": "http://localhost:5000/projects/delete",
+    "importProjectURL": "http://localhost:5000/projects/import",
+    "createProjectMirrorURL": "http://localhost:5000/remote_mirrors/create",
+    "remoteMirrorsListURL": "http://localhost:5000/remote_mirrors/list"
+}
