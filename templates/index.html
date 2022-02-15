@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FileDownloder</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/style.css" rel="stylesheet">
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+  </head>
+  <script>
+    const url = 'http://localhost:5000';
+    let names;
+    var filelocation = url+'/getalldir/';
+    var downloadfileLocationarr = [];
+    //var clickcount=0;
+    //
+  
+    //
+    async function getbucketnameJS() {
+      const response = await fetch(url+'/getnames/'+document.getElementById('customer').value+'/'+document.getElementById('environments').value);
+      names = await response.json();
+      document.getElementById("files").innerHTML = '';
+      filelocation = filelocation + document.getElementById('customer').value + '/';
+      filelocation = filelocation + document.getElementById('environments').value+'/';
+
+      let opt = await fetch(url+'/getaliases/'+document.getElementById('customer').value)
+      optJson = await opt.json();
+      console.log(names);
+      console.log(optJson); 
+
+      document.getElementById("bucket").innerHTML = '';
+      document.getElementById("bucket").innerHTML += '<option>Select Bucket</option>';
+      for (i = 0; i < optJson.length; i++) {
+        document.getElementById("bucket").innerHTML += '<option value="' + optJson[i][0] + '">' + optJson[i][1] + '</option>';
+      }
+    }
+
+    async function getfilesJS() {
+      //filelocation = url+'/getalldir/'+ document.getElementById('customer').value + '/'+ document.getElementById('environments').value+'/'+document.getElementById('bucket').value+'/';
+      const response = await fetch(url+'/getalldir/'+document.getElementById('customer').value+'/'+document.getElementById('environments').value+'/'+document.getElementById('bucket').value+'/_root');//+_root'
+      var names = await response.json();
+      downloadfileLocationarr = [];
+      document.getElementById("files").innerHTML = '';
+      for (i = 0; i < names.length; i++) {
+        var opt = document.createElement("li");
+        //console.log(typeof names[i]);
+        if(names[i].toLowerCase().indexOf('doc')>0){
+          document.getElementById("files").innerHTML += '<li  onclick=clickfunction("'+names[i]+'"); >' + '<a class="at" href="javascript:void(0)"'+ ' >' + 'Application Data' + '</a>' + '</li>';
+        }
+        else{
+          if(names[i].toLowerCase().indexOf('log')>0){
+            document.getElementById("files").innerHTML += '<li  onclick=clickfunction("'+names[i].replace(/\s/g, '%20')+'"); >' + '<a class="at" href="javascript:void(0)"'+ ' >' + 'Application Logs' + '</a>' + '</li>';
+          }
+          else{
+            document.getElementById("files").innerHTML += '<li  onclick=clickfunction("'+names[i].replace(/\s/g, '%20')+'"); >' + '<a class="at" href="javascript:void(0)"'+ ' >' + names[i] + '</a>' + '</li>';
+          }
+        }
+        //console.log(names[i].replace(/\s/g, '%20'));
+       
+      }//href="javascript:void(0);" id=key onclick="func(0)"
+      //javascript:void(0)
+    }//'+'"'+'/getalldir/'+document.getElementById('bucket').value+'/'+names[i]+','+'"'+'
+
+    async function clickfunction(t){
+      console.log(t);
+      downloadfileLocationarr.push(t);
+      var re = /(?:\.([^.]+))?$/;
+      var ext = re.exec(t)[1];
+      console.log(ext);
+      if(ext){
+        console.log('true');
+        download(downloadfileLocationarr,t);
+        downloadfileLocationarr.pop();
+      }else{
+        try{
+          console.log('false');
+          //filelocation = filelocation + t+',';
+          console.log(downloadfileLocationarr);
+          console.log('clicked here');
+          document.getElementById('files').innerHTML = '';
+          console.log(document.getElementById('bucket').value);
+          var d =await fetch(url+'/getalldir/'+document.getElementById('customer').value+'/'+document.getElementById('environments').value+'/'+document.getElementById('bucket').value+'/'+downloadfileLocationarr.join()+',');
+          var names = await d.json();
+          document.getElementById("files").innerHTML = '';
+          document.getElementById("files").innerHTML += '<li value="' + '..' + '"  onclick=getprevious("'+'..'.replace(/\s/g, '%20')+'"); >' + '<a  href="javascript:void(0)"'+ ' >' + '..' + '</a>' + '</li>';
+          for (i = 0; i < names.length; i++) {
+            var opt = document.createElement("li");
+            console.log(names[i]);
+            console.log(typeof names[i]);
+            console.log(names[i].replace(/\s/g, '%20'));
+            document.getElementById("files").innerHTML += '<li value="' + names[i] + '"  onclick=clickfunction("'+names[i].replace(/\s/g, '%20')+'"); >' + '<a  href="javascript:void(0)"'+ ' >' + names[i] + '</a>' + '</li>';
+          }
+          // if(names==='success'){
+          //   document.getElementById('success').style.display = 'block';
+          //   window.location.replace(url+'/send_file/'+t);
+          // }
+        }
+          catch(err){
+          console.log('error occured!');
+          download(downloadfileLocationarr,t);
+          downloadfileLocationarr.pop();
+
+
+        }
+        
+      }
+      
+    }
+
+    async function getprevious(temp){
+      console.log(temp);
+      downloadfileLocationarr.pop();
+      if(downloadfileLocationarr.length===0){
+        getfilesJS();
+      }
+      else{
+        var d =await fetch(url+'/getalldir/'+document.getElementById('customer').value+'/'+document.getElementById('environments').value+'/'+document.getElementById('bucket').value+'/'+downloadfileLocationarr.join()+',');
+        var names = await d.json();
+        document.getElementById("files").innerHTML = '';
+        document.getElementById("files").innerHTML += '<li value="' + '..' + '"  onclick=getprevious("'+'..'.replace(/\s/g, '%20')+'"); >' + '<a  href="javascript:void(0)"'+ ' >' + '..' + '</a>' + '</li>';
+        for (i = 0; i < names.length; i++) {
+          var opt = document.createElement("li");
+          console.log(names[i]);
+          console.log(typeof names[i]);
+          console.log(names[i].replace(/\s/g, '%20'));
+          document.getElementById("files").innerHTML += '<li value="' + names[i] + '"  onclick=clickfunction("'+names[i].replace(/\s/g, '%20')+'"); >' + '<a  href="javascript:void(0)"'+ ' >' + names[i] + '</a>' + '</li>';
+        }
+      }
+    }
+
+    async function download(arrl,fname) {
+      console.log(document.getElementById('bucket').value);
+      //console.log(document.getElementById('files').value);
+      //console.log(document.querySelector('#files').value.split('/'));
+      
+      console.log(url+'/download/'+document.getElementById('customer').value+'/'+document.getElementById('environments').value+'/'+document.getElementById('bucket').value+"/"+arrl);
+      console.log(encodeURI(url+'/download/'+document.getElementById('bucket').value+"/"+arrl));
+      const response = await fetch(url+'/download/'+document.getElementById('customer').value+'/'+document.getElementById('environments').value+'/'+document.getElementById('bucket').value+"/"+arrl);//document.querySelector('#files').value.split('/')
+      var t = await response.json();
+      console.log(t);
+      
+      if(t==='success'){
+        
+        document.getElementById('success').style.display = 'block';
+        try{
+        window.location.replace(url+'/send_file/'+fname);
+        }catch(err){
+          window.location.replace(url+'/send_file/what.pdf')
+        }
+      }else{
+        document.getElementById('failure').style.display = 'block';
+      }
+    }
+   
+    async function getenvname(){
+      var response = await fetch(url+'/getenvname/'+document.getElementById('customer').value);
+      var names = await response.json();
+      document.getElementById("environments").innerHTML = '';
+      document.getElementById("environments").innerHTML += '<option value="' + '...' + '">' + 'Select Environment' + '</option>';
+      for (i = 0; i < names.length; i++) {
+        var opt = document.createElement("option");
+        document.getElementById("environments").innerHTML += '<option value="' + names[i] + '">' + names[i] + '</option>';
+      }
+    }
+
+    async function getcustomername(){
+      var response = await fetch(url+'/getcustomers');
+      var names = await response.json();
+      document.getElementById("customer").innerHTML += '<option value="' + '...' + '">' + 'Select Customer' + '</option>';
+      for (i = 0; i < names.length; i++) {
+        var opt = document.createElement("option");
+        document.getElementById("customer").innerHTML += '<option value="' + names[i] + '">' + names[i] + '</option>';
+      }
+    }
+
+  </script>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white custom-navbar">
+        <a class="navbar-brand" href="#">
+          <img src="../static/images/prism-logo.png" />
+        </a>
+        <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button> -->
+      
+      </nav>
+      
+      <div class="container" >
+        <div class="row pt-5">
+          <div class="col-12 col-md-6 offset-md-3">
+            <div class="form-group">
+              <label for="formGroupExampleInput" class="h3">Select Customer</label>
+              <select class="form-control form-control-lg" aria-label="Default select example" id="customer" onchange="getenvname();">
+              </select>  
+            </div>
+          </div>
+        </div>
+        <div class="row pt-5">
+          <div class="col-12 col-md-6 offset-md-3">
+            <div class="form-group">
+              <label for="formGroupExampleInput" class="h3">Select Environment</label>
+              <select class="form-control form-control-lg" aria-label="Default select example" id="environments" onchange="getbucketnameJS();">
+                <!-- <option>Select Bucket</option> -->
+              </select>  
+            </div>
+          </div>
+        </div>
+        <div class="row pt-5">
+          <div class="col-12 col-md-6 offset-md-3">
+            <div class="form-group">
+              <label for="formGroupExampleInput" class="h3">Select Bucket</label>
+              <select class="form-control form-control-lg" aria-label="Default select example" id="bucket" onchange="getfilesJS();">
+                <!-- <option>Select Bucket</option> -->
+              </select>  
+            </div>
+          </div>
+        </div>
+        <div class="row pt-3">
+          <div class="col-12 col-md-6 offset-md-3">
+            <h2 class="h4">Select file</h2>
+            <ul class="art-vmenu" aria-label="Default select example" id="files"></ul>
+          </div>
+        </div>
+        
+     
+      <div class="alert alert-success alert-dismissible fade show" id="success" style="display: none;">
+        <span>
+          <strong>Success!</strong> Your file has been downloaded successfully.
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </span> 
+      </div>
+      <div class="alert alert-danger alert-dismissible fade show" id="failure" style="display: none;">
+        <span>
+          <strong>failure!</strong> download is not started yet please check file availablity in the bucket and internet connection.
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </span> 
+      </div>
+      <br>
+      <!-- <button type="button" class="btn btn-primary" onclick="download();">Download</button> -->
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- <script src="static/test.js"></script> -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script>
+    
+    $(document).ready(function () {
+      //getbucketnameJS();
+      getcustomername();
+      
+    });
+
+    
+  </script>
+  </body>
+</html>
