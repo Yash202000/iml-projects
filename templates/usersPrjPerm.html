@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Gitlab User's Perm</title>
+</head>
+<body>
+    <h3>Gitlab User Permission giver</h3>
+    <br>
+    <br>
+    Gitlab Endpoint : <select name="gitlaburl" id="gitlaburl">
+        <option value="15.10.0.196:9000" selected>IML-GitLab</option>
+    </select>
+    <br>
+    <br>
+    Select a project : <select name="projectlist" id="projectlist"></select> <button onclick="listprojects();">Refresh</button>
+    <br>
+    <br>
+    Select a user : <select name="users" id="users"></select><button onclick="listusers();">Refresh</button>
+    <br>
+    <br>
+    select a permission : <select name="perm" id="perm">
+        <option value="10" selected>Guest</option>
+        <option value="20">Reporter</option>
+        <option value="30">Developer</option>
+        <option value="40">Maintainer</option>
+        <option value="50">Owner</option>
+    </select>
+    <br>
+    <br>
+    <button id="applyperm" onclick="applypolicy()">Apply</button>
+
+    <script>
+       
+       async function listprojects(){
+           try{
+               await fetch('http://127.0.0.1:5000/listgitlabprojects/'+document.getElementById("gitlaburl").value)
+                .then(response => response.json())
+                .then(data =>{
+                    document.getElementById("projectlist").innerHTML = "";
+                    for(i=0; i<data.output.length;i++){
+                        //var opt = document.createElement("option");
+                        document.getElementById("projectlist").innerHTML += '<option value="' + data.output[i][0].toString() + '">' + data.output[i][1] + '</option>';
+                    }
+                })
+           }
+           catch(err){
+            document.getElementById("projectlist").innerHTML += '<option value="' + 'None' + '">' + err + '</option>';
+            }
+       };
+
+       async function listusers(){
+           try{
+               await fetch("http://127.0.0.1:5000/listgitlabusers/"+document.getElementById("gitlaburl").value)
+                .then(response => response.json())
+                .then(data =>{
+                    document.getElementById("users").innerHTML = "";
+                    for(i=0; i<data.output.length;i++){
+                        //var opt = document.createElement("option");
+                        document.getElementById("users").innerHTML += '<option value="' + data.output[i][0].toString() + '">' + data.output[i][1] + '</option>';
+                    }
+                })
+           }
+           catch(err){
+            document.getElementById("users").innerHTML += '<option value="' + 'None' + '">' + err + '</option>';
+           }
+       };
+
+       async function applypolicy(){
+           try{
+               console.log(document.getElementById("gitlaburl").value);
+               console.log(document.getElementById("projectlist").value);
+               console.log(document.getElementById("users").value);
+               console.log(document.getElementById("perm").value);
+               await fetch("http://127.0.0.1:5000/applypolicy/"+document.getElementById("gitlaburl").value+"/"+document.getElementById("projectlist").value+'/'+document.getElementById("users").value+"/"+document.getElementById("perm").value)
+                .then(response => response.json())
+                .then(data=>{
+                    console.log(data.output)
+                })
+           }
+           catch(err){
+               console.log(err)
+           }
+       }
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <br>
+    <b>select database endpoint.</b>
+    <select name="dburl" id="dburl">
+        <option value="database-1.c21gc9hxoi2v.ap-south-1.rds.amazonaws.com" selected>DB (ap-south-1)</option>
+    </select>
+    <br>
+    <button onclick=searchdb();>Search Database</button>
+    <br>
+    <select id="dbs" ></select>
+    <br>
+    Select Database for which user need to add : 
+    <br>
+    type user name: <input type="text" id='username'>
+    <br>
+    type user's email address: <input type="email" name="" id="email">
+    <br>
+    please select permissions<select name="perm" id="perm">
+        <option value="insert">insert</option>
+        <option value="create">create</option>
+        <option value="delete">delete</option>
+        <option value="update">update</option>
+        <option value="drop">drop</option>
+        <option value="select">select</option>
+        <option value="grant option">grant option</option>
+        <option value="all privileges">all privileges</option>
+    </select>
+    <br>
+    <button onclick="addUser();">update</button>
+
+
+    <script>
+        async function searchdb(){
+            try{
+                await fetch("http://127.0.0.1:5000/searchdbs"+"/"+document.getElementById("dburl").value)
+                    .then(response => response.json())
+                    .then(data =>{
+                        document.getElementById("dbs").innerHTML = "";
+                        for (i = 0; i < data.output.length; i++) {
+                        var opt = document.createElement("option");
+                        document.getElementById("dbs").innerHTML += '<option value="' + data.output[i] + '">' + data.output[i] + '</option>';
+                        }
+                    })
+                }
+                catch(err){
+                document.getElementById("dbs").innerHTML += '<option value="' + 'None' + '">' + err + '</option>';
+                }
+            }
+            
+        
+        async function addUser(){
+            await fetch("http://127.0.0.1:5000/addUserWithPass/"+document.getElementById("username").value+"/"+document.getElementById("email").value+"/"+document.getElementById("perm").value+"/"+document.getElementById("dbs").value)
+                .then(response => response.json())
+                .then(
+                    data=> {
+                        console.log(data);
+                    }
+                );
+        }
+
+
+    </script>
+
+</body>
+</html>
