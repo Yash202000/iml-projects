@@ -1,0 +1,61 @@
+- name: 'createing test code'
+  hosts: localhost
+  vars_files: vars.yml
+  tasks:
+    - shell: "python3 cmd-script.py {{ item }}"
+      with_items: "{{ ips }}"
+      when: method == "ssh"
+
+    - shell: "python3 cmd-script-2.py"
+      when: method == "pass"
+    
+    
+- name: 'usercreation on server'
+  hosts: servers
+  vars_files: vars.yml
+  tasks:
+
+    - name: Make sure we have a 'wheel' group
+      group:
+        
+        name: wheel
+        state: present
+    
+    - name: enable password based authentication.
+      lineinfile: 
+        dest: /etc/ssh/sshd_config 
+        regexp: '^#?PasswordAuthentication' 
+        line: 'PasswordAuthentication yes'
+      notify: Restart sshd.service
+
+    - name: Allow 'wheel' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Add sudoers users to wheel group
+      user:
+        name: "{{ item['username'] }}"
+        groups: wheel
+        append: yes
+        state: present
+        createhome: yes
+      loop: "{{ users }}"
+      when: method == "pass"
+
+    
+    - copy:
+        src: "userWpass.txt"
+        dest: ".ssh/userWpass.txt"
+
+    - shell: "cat .ssh/userWpass.txt | chpasswd"
+      when: method == "pass"
+
+  handlers:
+    - name: Restart sshd.service
+      service:
+        name: sshd.service
+        state: restarted

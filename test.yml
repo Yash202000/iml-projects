@@ -1,0 +1,10 @@
+- hosts: servers
+  vars:
+    method: 'ssh'
+
+  tasks:
+    - debug:
+        msg: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits,punctuation') }}"
+
+    - debug:
+        msg: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits,punctuation') | password_hash('sha512') }}"

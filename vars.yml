@@ -1,0 +1,33 @@
+users:
+  - {
+    username: 'yash' ,
+    email: 'yashpanchwatkar@gmail.com' 
+  }
+  - {
+    username: 'pratik',
+    email: 'pratik.inmk@gmail.com'
+  }
+  - {
+    username: 'rohit',
+    email: 'pratik.inmk@gmail.com'
+  }
+
+
+
+
+
+# pass for passwordbased 
+# ssh for ssh based
+# same for same password to use
+method: 'pass'
+
+bastion_ip: 3.109.217.195
+
+bastion_server_pem_file: "TEST-key.pem"
+
+app_server_pem_file: "final-key.pem"
+
+app_ip: 15.207.249.159
+
+ips:
+  - 65.0.91.156
