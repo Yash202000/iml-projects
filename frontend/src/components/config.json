@@ -1,0 +1,8 @@
+{
+    "URL": "http://localhost:5000/",
+    "signupURL": "http://localhost:5000/signup/add",
+    "signinURL": "http://localhost:5000/signin",
+    "filesURL":  "http://localhost:5000/files",
+    "downloadURL": "http://localhost:5000/download",
+    "downloadLocation": "http://localhost:5000/download"
+}
